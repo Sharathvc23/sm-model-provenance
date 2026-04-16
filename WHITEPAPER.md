@@ -38,6 +38,19 @@ The library produces three distinct JSON shapes from the same underlying 8-field
 
 All three methods share a common `to_dict()` base with omit-when-empty semantics. The first two methods produce complete provenance snapshots nested under their respective keys. The third deliberately restricts output to three identity-core fields using explicit field-by-field construction (rather than filtering `to_dict()`), matching the minimal provenance footprint expected in decision-envelope audit records where payload size matters. The `to_agentfacts_extension()` key defaults to `x_model_provenance` but is parameterizable for vendor-specific namespacing. The `to_agent_card_metadata()` key is fixed at `model_info` because the NANDA AgentCard specification defines it as a reserved key.
 
+```
+ModelProvenance (8 fields)
+         │
+         ├──▶ to_agentfacts_extension()  ──▶  {"x_model_provenance": {...}}
+         │                                      └─ NANDA AgentFacts metadata
+         │
+         ├──▶ to_agent_card_metadata()   ──▶  {"model_info": {...}}
+         │                                      └─ NANDA AgentCard profile
+         │
+         └──▶ to_decision_fields()       ──▶  {"model_id", "model_version", "provider_id"}
+                                                └─ Decision envelope (3 fields only)
+```
+
 The eight fields are organized into three semantic groups:
 
 | Group | Fields | Purpose |
@@ -89,14 +102,13 @@ The package exports two symbols: `ModelProvenance` (the core identity metadata c
 
 The dataclass design over Pydantic is intentional: using Python's `@dataclass` rather than Pydantic models eliminates all runtime dependencies. The provenance type is a plain data container without validation logic, keeping it deployable in every environment from edge devices to serverless functions without pulling in any third-party packages.
 
-## Future Work
-
-- Publish the `ModelProvenance` field schema as a JSON Schema document for registry-side validation without importing the Python package
-- Content-addressable provenance via deterministic hashing of the provenance record itself (not just the weights) for distributed registry references
-- Provenance chaining with an optional `parent_provenance_hash` field for linking records across model derivation steps, complementing the integrity layer's lineage chains with a lighter-weight identity-only mechanism
-- Multi-model provenance for agents using ensembles or routing layers via a collection-valued extension
-
 ## References
 
 1. NANDA Protocol. "Network of AI Agents in Decentralized Architecture." https://projectnanda.org
 2. W3C. "PROV-DM: The PROV Data Model." https://www.w3.org/TR/prov-dm/
+
+---
+
+*First published: 2026-04-15 | Last modified: 2026-04-15*
+
+*[stellarminds.ai](https://stellarminds.ai) — Research Contribution to [Project NANDA](https://projectnanda.org)*
